@@ -1,27 +1,28 @@
 FROM python:3.12
 
+# Install dependencies required for fetching and parsing JSON, and for installing Chrome
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    jq \
+    wget \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
 
-# install google chrome
-# RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
-# RUN sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
-# RUN apt-get -y update
-# RUN apt-get install -y google-chrome-stable
+# Fetch and install Google Chrome and ChromeDriver using the provided JSON API
+RUN set -eux; \
+    JSON_URL="https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json"; \
+    CHROME_URL=$(curl -sS ${JSON_URL} | jq -r '.channels.Stable.downloads.chrome[] | select(.platform=="linux64") | .url'); \
+    CHROMEDRIVER_URL=$(curl -sS ${JSON_URL} | jq -r '.channels.Stable.downloads.chromedriver[] | select(.platform=="linux64") | .url'); \
+    wget -O chrome-linux.zip ${CHROME_URL}; \
+    unzip chrome-linux.zip -d /opt/chrome; \
+    wget -O chromedriver-linux.zip ${CHROMEDRIVER_URL}; \
+    unzip chromedriver-linux.zip -d /usr/local/bin; \
+    chmod +x /usr/local/bin/chromedriver-linux64; \
+    rm chrome-linux.zip chromedriver-linux.zip
 
-# The chrome version 114.0.5735 is currently used since it's the latest working version that supports 'latest_release' of chromedriver
-# Check available versions here: https://www.ubuntuupdates.org/package/google_chrome/stable/main/base/google-chrome-stable
-ARG CHROME_VERSION="114.0.5735.198-1"
-RUN apt-get update
-RUN apt-get install -f
+# Set environment variable for Chrome binary
+ENV CHROME_BIN=/opt/chrome/chrome
 
-RUN wget --no-verbose -O /tmp/chrome.deb https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_${CHROME_VERSION}_amd64.deb \
-  && apt install -y /tmp/chrome.deb \
-  && rm /tmp/chrome.deb
-
-
-# install chromedriver
-RUN apt-get install -yqq unzip
-RUN wget -O /tmp/chromedriver.zip http://chromedriver.storage.googleapis.com/`curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE`/chromedriver_linux64.zip
-RUN unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
 
 # set display port to avoid crash
 ENV DISPLAY=:99
