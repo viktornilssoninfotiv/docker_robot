@@ -16,8 +16,8 @@ RUN set -eux; \
     wget -O chrome-linux.zip ${CHROME_URL}; \
     unzip chrome-linux.zip -d /opt/chrome; \
     wget -O chromedriver-linux.zip ${CHROMEDRIVER_URL}; \
-    unzip chromedriver-linux.zip -d /usr/local/bin; \
-    chmod +x /usr/local/bin/chromedriver-linux64; \
+    unzip -j chromedriver-linux.zip chromedriver-linux64/chromedriver -d /usr/local/bin; \
+    chmod +x /usr/local/bin/chromedriver; \
     rm chrome-linux.zip chromedriver-linux.zip
 
 # Set environment variable for Chrome binary
