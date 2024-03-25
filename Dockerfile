@@ -1,6 +1,6 @@
 FROM python:3.12
 
-# Install dependencies required for fetching and parsing JSON and for installing ChromDriver
+# Install dependencies required for fetching and parsing JSON and for installing ChromeDriver
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     jq \
