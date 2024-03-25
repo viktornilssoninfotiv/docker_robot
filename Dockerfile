@@ -7,8 +7,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     jq \
     wget \
     unzip \
-    libnss3 \
     && rm -rf /var/lib/apt/lists/*
+
+# Install old chrome version via package manager to get dependencies
+# Uninstall it afterwards to prevent ChromeDriver from using old version
+ARG CHROME_VERSION="114.0.5735.198-1"
+RUN apt-get update
+RUN apt-get install -f
+
+RUN wget --no-verbose -O /tmp/chrome.deb https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_${CHROME_VERSION}_amd64.deb \
+  && apt install -y /tmp/chrome.deb \
+  && rm /tmp/chrome.deb \
+  && apt-get remove -y google-chrome-stable
 
 # Fetch and install Google Chrome and ChromeDriver using the provided JSON API
 RUN set -eux; \
