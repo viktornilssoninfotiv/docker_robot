@@ -1,7 +1,6 @@
 FROM python:3.12
 
-# Install dependencies required for fetching and parsing JSON and for installing Chrome
-# libnss3 for running ChromeDriver
+# Install dependencies required for fetching and parsing JSON and for installing ChromDriver
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     jq \
@@ -9,9 +8,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     unzip \
     && rm -rf /var/lib/apt/lists/*
 
-# Install old chrome version via package manager to get dependencies
-RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
-RUN sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
+# Install latest stable chrome via package manager
+# Could be obtained with Chrome-for-Testing JSON API, but that won't include dependencies
+
+# Download the Google Chrome signing key to a temporary location
+RUN wget https://dl-ssl.google.com/linux/linux_signing_key.pub -O /tmp/google.pub
+
+# Import the downloaded signing key into a custom keyring within the /etc/apt/keyrings directory
+RUN gpg --no-default-keyring --keyring /etc/apt/keyrings/google-chrome.gpg --import /tmp/google.pub
+
+# Add the Google Chrome repository to the system's software sources list, specifying the custom keyring for signature verification
+RUN echo 'deb [arch=amd64 signed-by=/etc/apt/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main' | tee /etc/apt/sources.list.d/google-chrome.list
+
+# Update the package list to include the new repository before installing
 RUN apt-get -y update
 RUN apt-get install -y google-chrome-stable
 
