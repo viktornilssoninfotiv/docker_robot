@@ -1,33 +1,68 @@
 FROM python:3.12
 
+# Install dependencies required for fetching and parsing JSON and for installing ChromDriver
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    jq \
+    wget \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
 
-# install google chrome
-# RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
-# RUN sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
-# RUN apt-get -y update
-# RUN apt-get install -y google-chrome-stable
+# Install latest stable chrome via package manager
+# Could be obtained with Chrome-for-Testing JSON API, but that won't include dependencies
 
-# The chrome version 114.0.5735 is currently used since it's the latest working version that supports 'latest_release' of chromedriver
-# Check available versions here: https://www.ubuntuupdates.org/package/google_chrome/stable/main/base/google-chrome-stable
-ARG CHROME_VERSION="114.0.5735.198-1"
-RUN apt-get update
-RUN apt-get install -f
+# Download the Google Chrome signing key to a temporary location
+RUN wget https://dl-ssl.google.com/linux/linux_signing_key.pub -O /tmp/google.pub
 
-RUN wget --no-verbose -O /tmp/chrome.deb https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_${CHROME_VERSION}_amd64.deb \
-  && apt install -y /tmp/chrome.deb \
-  && rm /tmp/chrome.deb
+# Import the downloaded signing key into a custom keyring within the /etc/apt/keyrings directory
+RUN gpg --no-default-keyring --keyring /etc/apt/keyrings/google-chrome.gpg --import /tmp/google.pub
+
+# Add the Google Chrome repository to the system's software sources list,
+# specifying the custom keyring for signature verification
+RUN echo 'deb [arch=amd64 signed-by=/etc/apt/keyrings/google-chrome.gpg] \
+http://dl.google.com/linux/chrome/deb/ stable main' | \
+tee /etc/apt/sources.list.d/google-chrome.list
 
 
-# install chromedriver
-RUN apt-get install -yqq unzip
-RUN wget -O /tmp/chromedriver.zip http://chromedriver.storage.googleapis.com/`curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE`/chromedriver_linux64.zip
-RUN unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
+# Update the package list to include the new repository before installing
+RUN apt-get -y update
+RUN apt-get install -y google-chrome-stable
+
+# Fetch and install ChromeDriver using the Chrome-for-Testing JSON API
+ENV JSON_URL="https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json"
+
+# Define the platform variable
+ENV PLATFORM="linux64"
+
+# Use curl to fetch the Chrome-for-Testing JSON
+# and extract the ChromeDriver URL for the specified platform
+RUN set -eux; \
+    CHROMEDRIVER_URL=$(curl -sS ${JSON_URL} | \
+    jq -r --arg platform "$PLATFORM" '.channels.Stable.downloads.chromedriver[] | select(.platform==$platform) | .url'); \
+    # Download ChromeDriver using the extracted URL
+    wget -O chromedriver-${PLATFORM}.zip "${CHROMEDRIVER_URL}"; \
+    # Unzip ChromeDriver to /opt/chrome, ignoring the directory structure within the zip file
+    unzip -j chromedriver-${PLATFORM}.zip -d /opt/chrome; \
+    # Remove the zip file to clean up
+    rm chromedriver-${PLATFORM}.zip; \
+    # Make ChromeDriver executable
+    chmod +x /opt/chrome/chromedriver
 
 # set display port to avoid crash
 ENV DISPLAY=:99
 
-# install requirements
-RUN pip install robotframework
-RUN pip install robotframework-seleniumlibrary
+# Set up virtual Python environment
+# This prevents warnings about running pip as 'root'
+RUN python -m venv /opt/venv
+
+# Activate the virtual environment
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Any subsequent RUN commands and CMD/ENTRYPOINT will use the virtual environment,
+# and any Python packages installed will be contained within it.
+
+RUN python -m pip install --upgrade pip \
+    && pip install robotframework robotframework-seleniumlibrary
 
 COPY test1.robot test1.robot
+RUN robot test1.robot
