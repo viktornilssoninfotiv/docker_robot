@@ -65,3 +65,4 @@ RUN python -m pip install --upgrade pip \
     && pip install robotframework robotframework-seleniumlibrary
 
 COPY test1.robot test1.robot
+RUN robot test1.robot
