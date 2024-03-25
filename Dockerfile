@@ -31,6 +31,7 @@ RUN set -eux; \
 
 # Set environment variable for Chrome binary
 ENV CHROME_BIN=/opt/chrome/chrome
+ENV PATH="/opt/chrome:$PATH"
 
 # set display port to avoid crash
 ENV DISPLAY=:99
