@@ -2,6 +2,7 @@ FROM python:3.12
 
 # Install dependencies required for fetching and parsing JSON and for installing ChromeDriver
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    apt-utils \
     curl \
     jq \
     wget \
@@ -64,5 +65,5 @@ ENV PATH="/opt/venv/bin:$PATH"
 RUN python -m pip install --upgrade pip \
     && pip install robotframework robotframework-seleniumlibrary
 
-COPY test1.robot test1.robot
+COPY tests/test1.robot test1.robot
 RUN robot test1.robot
