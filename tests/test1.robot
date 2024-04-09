@@ -14,6 +14,8 @@ ${first_name_field}      //input[@id='FirstName']
 ${last_name_field}       //input[@id='LastName']
 ${city_field}            //input[@id='City']
 
+# Default browser
+${BROWSER}  headlesschrome
 # Chrome browser options.
 # Uses the no-sandbox option as a workaround for Chrome crashing when run as root in docker
 # container on Jenkins.
@@ -31,7 +33,7 @@ BDD test
 *** Keywords ***
 
 Setup
-    Open Browser        browser=headlesschrome      options=${BROWSER_OPTIONS}
+    Open Browser        browser=${BROWSER}      options=${BROWSER_OPTIONS}
     Go To   ${url}
     Wait Until Element Is Visible    //a[@class='navbar-brand col-sm-3 col-md-2 mr-0']
 
