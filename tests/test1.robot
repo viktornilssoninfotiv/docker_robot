@@ -32,6 +32,7 @@ Sample Robot test
 Verify Blazorapp running
     Open Browser        browser=${BROWSER}      options=${BROWSER_OPTIONS}
     Go To   http://localhost:5199
+    Wait Until Page Contains    Hello, world!
 
 
 *** Keywords ***
