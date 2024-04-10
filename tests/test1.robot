@@ -23,11 +23,15 @@ ${BROWSER}  headlesschrome
 ${BROWSER_OPTIONS}  add_argument("--no-sandbox"); add_argument("window-size=1920,1080")
 
 *** Test Cases ***
-BDD test
+Sample Robot test
     Given The User is on sign in page
     And Is logged in
     When A new customer is created
     Then The customer has been successfully created
+    
+Verify Blazorapp running
+    Open Browser        browser=${BROWSER}      options=${BROWSER_OPTIONS}
+    Go To   http://localhost:5199
 
 
 *** Keywords ***
