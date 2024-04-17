@@ -1,12 +1,15 @@
 *** Settings ***
 Documentation       Robot Framework sample test case
 Library     SeleniumLibrary
+Library     WaitForApp.py
+
 Suite Setup     Setup
 
 *** Variables ***
 ${user_email}          hamid@gamil.se
 ${password}          123
-${url}               https://automationplayground.com/crm/
+${url_sample}               https://automationplayground.com/crm/
+${URL}               http://localhost:5199
 
 ${New Customer}      id:new-customer
 ${email_field}           //*[@id="EmailAddress"]
@@ -31,7 +34,7 @@ Sample Robot test
     
 Verify Blazorapp running
     Open Browser        browser=${BROWSER}      options=${BROWSER_OPTIONS}
-    Go To   http://localhost:5199
+    Go To   ${URL}
     Wait Until Page Contains    Hello, world!
 
 
@@ -39,7 +42,8 @@ Verify Blazorapp running
 
 Setup
     Open Browser        browser=${BROWSER}      options=${BROWSER_OPTIONS}
-    Go To   ${url}
+    Wait For Application    ${URL}    300    5
+    Go To   ${url_sample}
     Wait Until Element Is Visible    //a[@class='navbar-brand col-sm-3 col-md-2 mr-0']
 
 
