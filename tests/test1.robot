@@ -3,8 +3,6 @@ Documentation       Robot Framework sample test case
 Library     SeleniumLibrary
 Library     WaitForApp.py
 
-Suite Setup     Setup
-
 *** Variables ***
 ${user_email}          hamid@gamil.se
 ${password}          123
@@ -26,11 +24,10 @@ ${BROWSER}  headlesschrome
 ${BROWSER_OPTIONS}  add_argument("--no-sandbox"); add_argument("window-size=1920,1080")
 
 *** Test Cases ***
-    
-Verify Blazorapp running
+Sample test case with Chrome
     Open Browser        browser=${BROWSER}      options=${BROWSER_OPTIONS}
-    Go To   ${URL}
-    Wait Until Page Contains    Hello, world!
+    Go To   ${url_sample}
+    Wait Until Page Contains    Welcome
 
 
 *** Keywords ***

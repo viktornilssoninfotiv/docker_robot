@@ -15,6 +15,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag docker-robot
+      run: docker build . --file Dockerfile --tag robot-container
     - name: Run Robot Framework tests
-      run: docker run -it dockerrobot robot test/test1.robot -d results
+      run: docker run -it -v .\tests\:/tests robot-container robot --dry-run tests/test1.robot
