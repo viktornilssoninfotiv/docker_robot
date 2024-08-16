@@ -17,4 +17,4 @@ jobs:
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag robot-container
     - name: Run Robot Framework tests
-      run: docker run -it -v .\tests\:/tests robot-container robot --dry-run tests/test1.robot
+      run: docker run -v .\tests\:/tests robot-container robot --dry-run tests/test1.robot
