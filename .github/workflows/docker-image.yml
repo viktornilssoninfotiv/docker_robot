@@ -14,7 +14,23 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag robot-container
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and push Docker image
+      run: |
+        docker buildx build --push \
+          --cache-from=type=registry,ref=ghcr.io/${{ github.repository }}/robot-container:cache \
+          --cache-to=type=registry,ref=ghcr.io/${{ github.repository }}/robot-container:cache,mode=max \
+          --tag ghcr.io/${{ github.repository }}/robot-container:latest .
+
     - name: Run Robot Framework tests
-      run: docker run -v .\tests\:/tests robot-container robot --dry-run tests/test1.robot
+      run: docker run -v ${{ github.workspace }}/tests:/tests ghcr.io/${{ github.repository }}/robot-container:latest robot --dry-run tests/test1.robot
