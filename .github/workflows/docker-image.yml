@@ -32,5 +32,11 @@ jobs:
           --cache-to=type=registry,ref=ghcr.io/${{ github.repository }}/robot-container:cache,mode=max \
           --tag ghcr.io/${{ github.repository }}/robot-container:latest .
 
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
     - name: Run Robot Framework tests
-      run: docker run -v ${{ github.workspace }}/tests:/tests ghcr.io/${{ github.repository }}/robot-container:latest robot --dry-run tests/test1.robot
+      run: docker run -v ${{ github.workspace }}/tests:/tests ghcr.io/${{ github.repository }}/robot-container:latest robot tests/test1.robot
