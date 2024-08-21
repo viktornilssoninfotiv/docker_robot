@@ -21,7 +21,7 @@ ${BROWSER}  headlesschrome
 # Uses the no-sandbox option as a workaround for Chrome crashing when run as root in docker
 # container on Jenkins.
 # Sets the window size to ensure all elements are possible to interact with
-${BROWSER_OPTIONS}  add_argument("--no-sandbox"); add_argument("window-size=1920,1080")
+${BROWSER_OPTIONS}  add_argument("--no-sandbox"); add_argument("--disable-gpu"); add_argument("window-size=1920,1080");
 
 *** Test Cases ***
 Sample test case with Chrome
