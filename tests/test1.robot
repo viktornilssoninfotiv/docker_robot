@@ -21,6 +21,8 @@ ${BROWSER}  headlesschrome
 # Uses the no-sandbox option as a workaround for Chrome crashing when run as root in docker
 # container on Jenkins.
 # Sets the window size to ensure all elements are possible to interact with
+# --disable-gpu to fix: Chrome crashing or "ERROR:command_buffer_proxy_impl.cc(128)] ContextResult::kTransientFailure:
+# Failed to send GpuControl.CreateCommandBuffer."
 ${BROWSER_OPTIONS}  add_argument("--no-sandbox"); add_argument("--disable-gpu"); add_argument("window-size=1920,1080");
 
 *** Test Cases ***
