@@ -3,8 +3,6 @@ Documentation       Robot Framework sample test case
 Library     SeleniumLibrary
 Library     WaitForApp.py
 
-Suite Setup     Setup
-
 *** Variables ***
 ${user_email}          hamid@gamil.se
 ${password}          123
@@ -23,19 +21,15 @@ ${BROWSER}  headlesschrome
 # Uses the no-sandbox option as a workaround for Chrome crashing when run as root in docker
 # container on Jenkins.
 # Sets the window size to ensure all elements are possible to interact with
-${BROWSER_OPTIONS}  add_argument("--no-sandbox"); add_argument("window-size=1920,1080")
+# --disable-gpu to fix: Chrome crashing or "ERROR:command_buffer_proxy_impl.cc(128)] ContextResult::kTransientFailure:
+# Failed to send GpuControl.CreateCommandBuffer."
+${BROWSER_OPTIONS}  add_argument("--no-sandbox"); add_argument("--disable-gpu"); add_argument("window-size=1920,1080");
 
 *** Test Cases ***
-Sample Robot test
-    Given The User is on sign in page
-    And Is logged in
-    When A new customer is created
-    Then The customer has been successfully created
-    
-Verify Blazorapp running
+Sample test case with Chrome
     Open Browser        browser=${BROWSER}      options=${BROWSER_OPTIONS}
-    Go To   ${URL}
-    Wait Until Page Contains    Hello, world!
+    Go To   ${url_sample}
+    Wait Until Page Contains    Welcome
 
 
 *** Keywords ***

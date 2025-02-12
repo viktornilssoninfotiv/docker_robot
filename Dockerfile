@@ -62,8 +62,6 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Any subsequent RUN commands and CMD/ENTRYPOINT will use the virtual environment,
 # and any Python packages installed will be contained within it.
 
+COPY requirements.txt /
 RUN python -m pip install --upgrade pip \
-    && pip install robotframework robotframework-seleniumlibrary
-
-COPY tests/test1.robot test1.robot
-RUN robot test1.robot
+    && pip install -r requirements.txt
